@@ -1,0 +1,34 @@
+{
+  "templateId": "ship",
+  "name": "Ship",
+  "vehicleClass": "Ship",
+  "modules": [
+    {
+      "templateId": "ship.main-battery",
+      "name": "Main Battery",
+      "subsystemTypeId": "weapon.aps",
+      "values": {
+        "targetArmor": [ "HA 4m Beam", "Metal 4m Beam", "Metal 4m Beam" ],
+        "damageType": "Kinetic",
+        "optimizeFor": "DPS per cost",
+        "minGauge": 100,
+        "maxGauge": 500,
+        "maxLoaderLength": 4,
+        "impactAngle": 45,
+        "allowRail": false
+      }
+    },
+    {
+      "templateId": "ship.lams",
+      "name": "LAMS",
+      "subsystemTypeId": "defence.lams",
+      "values": {}
+    },
+    {
+      "templateId": "ship.steam",
+      "name": "Steam Engine",
+      "subsystemTypeId": "power.steam-engine",
+      "values": {}
+    }
+  ]
+}
