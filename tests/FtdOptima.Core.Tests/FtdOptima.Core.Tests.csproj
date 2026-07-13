@@ -22,6 +22,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FtdOptima.Core\FtdOptima.Core.csproj" />
     <ProjectReference Include="..\..\src\FtdOptima.Modules.Demo\FtdOptima.Modules.Demo.csproj" />
+    <ProjectReference Include="..\..\src\FtdOptima.Modules.Aps\FtdOptima.Modules.Aps.csproj" />
+    <ProjectReference Include="..\..\src\FtdOptima.App.Presentation\FtdOptima.App.Presentation.csproj" />
   </ItemGroup>
 
 </Project>

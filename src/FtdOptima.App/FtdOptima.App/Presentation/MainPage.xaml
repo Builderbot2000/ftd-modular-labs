@@ -47,11 +47,54 @@
       </StackPanel>
     </DataTemplate>
 
+    <!-- Armor builder: an ordered, selectable stack of layers (the target composition). -->
+    <DataTemplate x:Key="LayerStackFieldTemplate">
+      <StackPanel Spacing="6" Margin="0,0,0,12">
+        <TextBlock Text="{Binding DisplayLabel}" Style="{StaticResource CaptionTextBlockStyle}" />
+        <Grid ColumnSpacing="8">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <ComboBox Grid.Column="0" ItemsSource="{Binding Options}"
+                    SelectedItem="{Binding SelectedOptionToAdd, Mode=TwoWay}"
+                    HorizontalAlignment="Stretch" />
+          <Button Grid.Column="1" Content="Add layer" Command="{Binding AddLayerCommand}" />
+        </Grid>
+        <ItemsControl ItemsSource="{Binding Stack}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnSpacing="4" Margin="0,2"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    Padding="8,4">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="▲" FontSize="10"
+                        Command="{Binding Owner.MoveLayerUpCommand}" CommandParameter="{Binding}" />
+                <Button Grid.Column="2" Content="▼" FontSize="10"
+                        Command="{Binding Owner.MoveLayerDownCommand}" CommandParameter="{Binding}" />
+                <Button Grid.Column="3" Content="✕" FontSize="10"
+                        Command="{Binding Owner.RemoveLayerCommand}" CommandParameter="{Binding}" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Text="{Binding Help}" Style="{StaticResource CaptionTextBlockStyle}"
+                   Opacity="0.6" TextWrapping="Wrap" />
+      </StackPanel>
+    </DataTemplate>
+
     <local:ParameterTemplateSelector x:Key="ParameterTemplateSelector"
                                      NumberTemplate="{StaticResource NumberFieldTemplate}"
                                      EnumTemplate="{StaticResource EnumFieldTemplate}"
                                      BooleanTemplate="{StaticResource BooleanFieldTemplate}"
-                                     TextTemplate="{StaticResource TextFieldTemplate}" />
+                                     TextTemplate="{StaticResource TextFieldTemplate}"
+                                     LayerStackTemplate="{StaticResource LayerStackFieldTemplate}" />
 
     <!-- A single result table: title, header row, then data rows. Columns are dynamic. -->
     <DataTemplate x:Key="ResultTableTemplate">

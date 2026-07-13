@@ -1,7 +1,9 @@
 <Project Sdk="Uno.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\FtdOptima.Core\FtdOptima.Core.csproj" />
+    <ProjectReference Include="..\..\FtdOptima.App.Presentation\FtdOptima.App.Presentation.csproj" />
     <ProjectReference Include="..\..\FtdOptima.Modules.Demo\FtdOptima.Modules.Demo.csproj" />
+    <ProjectReference Include="..\..\FtdOptima.Modules.Aps\FtdOptima.Modules.Aps.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <!--

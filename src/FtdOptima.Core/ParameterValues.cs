@@ -84,6 +84,24 @@ public sealed class ParameterValues
     /// <summary>Gets an enum-kind value as its raw string option.</summary>
     public string GetEnumOption(string key) => GetString(key);
 
+    /// <summary>
+    /// Gets a <see cref="ParameterKind.LayerStack"/> value as an ordered list of option strings.
+    /// Accepts an <see cref="IEnumerable{String}"/>, or a comma-separated string. Returns an empty
+    /// list when the value is absent.
+    /// </summary>
+    public IReadOnlyList<string> GetStringList(string key)
+    {
+        var raw = GetRaw(key);
+        return raw switch
+        {
+            null => Array.Empty<string>(),
+            IEnumerable<string> list => list.ToList(),
+            string s => s.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+            System.Collections.IEnumerable e => e.Cast<object?>().Select(o => Convert.ToString(o, CultureInfo.InvariantCulture) ?? string.Empty).ToList(),
+            _ => Array.Empty<string>(),
+        };
+    }
+
     private object Require(string key)
     {
         if (!_values.TryGetValue(key, out var v) || v is null)
@@ -137,6 +155,20 @@ public sealed class ParameterValues
                 case ParameterKind.Boolean:
                     if (raw is not bool && !(raw is string bs && bool.TryParse(bs, out _)))
                         errors.Add($"'{p.Label}' must be true or false.");
+                    break;
+
+                case ParameterKind.LayerStack:
+                    var items = GetStringList(p.Key);
+                    if (p.Options is { Count: > 0 })
+                    {
+                        foreach (var item in items)
+                        {
+                            if (!p.Options.Contains(item))
+                            {
+                                errors.Add($"'{p.Label}' contains an unknown option '{item}'.");
+                            }
+                        }
+                    }
                     break;
 
                 case ParameterKind.Text:
