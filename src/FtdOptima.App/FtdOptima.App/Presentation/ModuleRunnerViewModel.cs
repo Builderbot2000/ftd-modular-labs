@@ -73,7 +73,7 @@ public partial class ModuleRunnerViewModel : ObservableObject
         {
             var values = new ParameterValues();
             foreach (var field in Fields)
-                values.Set(field.Key, field.Value);
+                values.Set(field.Key, field.EffectiveValue);
 
             var errors = values.Validate(_module.InputSchema);
             if (errors.Count > 0)

@@ -1,3 +1,4 @@
+using FtdOptima.Modules.Aps;
 using FtdOptima.Modules.Demo;
 
 namespace FtdOptima.App;
@@ -9,5 +10,7 @@ namespace FtdOptima.App;
 public static class AppServicesExtensions
 {
     public static IServiceCollection AddFtdModules(this IServiceCollection services) =>
-        services.AddDemoModule();
+        services
+            .AddDemoModule()
+            .AddApsModule();
 }
