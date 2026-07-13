@@ -79,7 +79,21 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <utu:NavigationBar Grid.Row="0" Content="Edit Design" />
+    <Grid Grid.Row="0" ColumnSpacing="8" Padding="8,6" Background="{ThemeResource LayerFillColorDefaultBrush}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0" Command="{Binding BackCommand}"
+              VerticalAlignment="Center" CornerRadius="8"
+              Padding="12,6" FontSize="18"
+              ToolTipService.ToolTip="Save and return to designs"
+              AutomationProperties.Name="Back to designs">
+        <TextBlock Text="&#x2190;" FontSize="20" />
+      </Button>
+      <TextBlock Grid.Column="1" Text="Edit Design" VerticalAlignment="Center"
+                 Style="{StaticResource TitleTextBlockStyle}" />
+    </Grid>
 
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
@@ -108,6 +122,8 @@
           <TextBlock Text="Modules" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,8,0,0" />
           <ListView ItemsSource="{Binding Modules}"
                     SelectedItem="{Binding SelectedModuleItem, Mode=TwoWay}"
+                    DoubleTapped="OnModuleDoubleTapped"
+                    ToolTipService.ToolTip="Double-click a module to open it"
                     MaxHeight="360">
             <ListView.ItemTemplate>
               <DataTemplate>
@@ -137,19 +153,18 @@
             <Button Content="Save" Command="{Binding SaveCommand}" Style="{StaticResource AccentButtonStyle}" />
             <Button Content="Save as template" Command="{Binding SaveAsTemplateCommand}" />
           </StackPanel>
-          <Button Content="◀ Back to designs" Command="{Binding BackCommand}" HorizontalAlignment="Left" />
           <TextBlock Text="{Binding StatusMessage}" Opacity="0.7" TextWrapping="Wrap" />
         </StackPanel>
       </ScrollViewer>
 
       <!-- Detail: the selected module's editor -->
       <Grid Grid.Column="1">
-        <TextBlock Text="Select or add a module to edit it."
+        <TextBlock Text="Double-click a module to edit it."
                    HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"
-                   Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
-        <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                   Visibility="{Binding HasEnteredModule, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+        <StackPanel Visibility="{Binding HasEnteredModule, Converter={StaticResource BoolToVisibility}}">
           <TextBox Header="Module name" Margin="24,16,24,0" MaxWidth="680" HorizontalAlignment="Left"
-                   Text="{Binding SelectedModuleItem.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                   Text="{Binding EnteredModule.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
           <ContentControl HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
                           Content="{Binding ModuleEditor}"
                           ContentTemplate="{StaticResource ModuleEditorTemplate}" />

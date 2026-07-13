@@ -84,7 +84,10 @@ public partial class App : Application
         MainWindow = builder.Window;
 
         #if DEBUG
-        MainWindow.UseStudio();
+        // Uno Hot Design pins a diagnostics overlay to the top-left corner, which sits on top of
+        // the page's back button and other top-left chrome. Left disabled so app controls stay
+        // reachable during development; re-enable if you need the visual designer.
+        // MainWindow.UseStudio();
 #endif
                 MainWindow.SetWindowIcon();
 

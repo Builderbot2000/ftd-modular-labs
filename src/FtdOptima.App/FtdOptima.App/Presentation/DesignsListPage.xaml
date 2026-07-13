@@ -44,6 +44,8 @@
     <ListView Grid.Row="2"
               ItemsSource="{Binding Designs}"
               SelectedItem="{Binding SelectedDesign, Mode=TwoWay}"
+              DoubleTapped="OnDesignDoubleTapped"
+              ToolTipService.ToolTip="Double-click a design to open it"
               Background="{ThemeResource LayerFillColorDefaultBrush}">
       <ListView.ItemTemplate>
         <DataTemplate>

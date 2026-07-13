@@ -78,7 +78,7 @@ public partial class DesignEditorViewModel : ObservableObject
         AddModuleCommand = new AsyncRelayCommand(AddModuleAsync);
         BackCommand = new AsyncRelayCommand(BackAsync);
 
-        SelectedModuleItem = Modules.FirstOrDefault();
+        // Modules start collapsed: nothing is opened for editing until the user enters one.
         _ = LoadModuleTemplatesAsync();
     }
 
@@ -98,20 +98,33 @@ public partial class DesignEditorViewModel : ObservableObject
 
     public ObservableCollection<ModuleListItem> Modules { get; }
 
+    /// <summary>The row highlighted in the list (single click). Highlighting does not open the editor.</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSelection))]
     private ModuleListItem? selectedModuleItem;
+
+    /// <summary>The module opened for editing in the detail pane (entered via double click).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasEnteredModule))]
+    private ModuleListItem? enteredModule;
 
     [ObservableProperty]
     private ModuleEditorViewModel? moduleEditor;
 
-    public bool HasSelection => SelectedModuleItem is not null;
+    public bool HasEnteredModule => EnteredModule is not null;
 
-    partial void OnSelectedModuleItemChanged(ModuleListItem? oldValue, ModuleListItem? newValue)
+    partial void OnEnteredModuleChanged(ModuleListItem? oldValue, ModuleListItem? newValue)
     {
-        // Persist edits from the previously-selected module before switching.
+        // Persist edits from the previously-open module before switching.
         ModuleEditor?.CommitToModule();
         ModuleEditor = newValue is null ? null : new ModuleEditorViewModel(newValue.Model, _registry);
+    }
+
+    /// <summary>Enters a module (opens its editor). Triggered by double-clicking a list row.</summary>
+    [RelayCommand]
+    private void OpenModule(ModuleListItem? item)
+    {
+        if (item is not null)
+            EnteredModule = item;
     }
 
     // ---- add-module picker ----
@@ -147,7 +160,9 @@ public partial class DesignEditorViewModel : ObservableObject
         _design.Modules.Remove(item.Model);
         Modules.Remove(item);
         if (ReferenceEquals(SelectedModuleItem, item))
-            SelectedModuleItem = Modules.FirstOrDefault();
+            SelectedModuleItem = null;
+        if (ReferenceEquals(EnteredModule, item))
+            EnteredModule = null;
     }
 
     [RelayCommand]
@@ -198,7 +213,9 @@ public partial class DesignEditorViewModel : ObservableObject
         _design.Modules.Add(module);
         var item = new ModuleListItem(module, _registry);
         Modules.Add(item);
+        // Adding is a deliberate action, so highlight and open the new module for editing.
         SelectedModuleItem = item;
+        EnteredModule = item;
         NewModuleName = "";
         StatusMessage = $"Added '{moduleName}'.";
         return Task.CompletedTask;
