@@ -5,11 +5,21 @@ namespace FtdModularLabs.Domain.Serialization;
 // JSON transport shapes. Parameter values persist as a map of JsonElement so the on-disk form is
 // exact and schema-independent; ParameterValueSnapshot.Restore coerces them by kind at compute time.
 
+public sealed record ModuleContributionDto(
+    double? Weight,
+    double? CostFloor,
+    double? Buoyancy,
+    double? Lift,
+    double? Volume,
+    double? PowerOutput,
+    double? PowerDraw);
+
 public sealed record DesignModuleDto(
     Guid Id,
     string Name,
     string SubsystemTypeId,
-    Dictionary<string, JsonElement> Values);
+    Dictionary<string, JsonElement> Values,
+    ModuleContributionDto? Contribution = null);
 
 public sealed record VehicleDesignDto(
     Guid Id,
@@ -17,7 +27,9 @@ public sealed record VehicleDesignDto(
     string VehicleClass,
     List<DesignModuleDto> Modules,
     DateTimeOffset CreatedUtc,
-    DateTimeOffset ModifiedUtc);
+    DateTimeOffset ModifiedUtc,
+    string Description = "",
+    double? ManualCost = null);
 
 public sealed record ModuleTemplateDto(
     string TemplateId,

@@ -53,6 +53,36 @@ public class VehicleDesignRepositoryTests
     }
 
     [Fact]
+    public async Task RoundTrip_PreservesDescription_ManualCost_AndModuleContribution()
+    {
+        using var paths = new TempPaths();
+        var repo = new JsonFileVehicleDesignRepository(paths);
+
+        var design = DesignFactory.CreateBlank("Valiant", "Ship");
+        design.Description = "A short line about role and tactics.";
+        design.ManualCost = 123_456.78;
+        design.Modules.Add(new DesignModule(
+            Guid.NewGuid(), "Main Battery", "weapon.aps",
+            values: null,
+            contribution: new ModuleContribution(
+                Weight: null, CostFloor: 4200.0, Buoyancy: null, Lift: null,
+                Volume: 850.0, PowerOutput: null, PowerDraw: 60.0)));
+        await repo.SaveAsync(design);
+
+        var loaded = await repo.GetAsync(design.Id);
+        Assert.NotNull(loaded);
+        Assert.Equal("A short line about role and tactics.", loaded!.Description);
+        Assert.Equal(123_456.78, loaded.ManualCost);
+
+        var contribution = loaded.Modules[0].Contribution;
+        Assert.NotNull(contribution);
+        Assert.Null(contribution!.Weight);
+        Assert.Equal(4200.0, contribution.CostFloor);
+        Assert.Equal(850.0, contribution.Volume);
+        Assert.Equal(60.0, contribution.PowerDraw);
+    }
+
+    [Fact]
     public async Task GetAll_OnMissingDir_ReturnsEmpty()
     {
         using var paths = new TempPaths();

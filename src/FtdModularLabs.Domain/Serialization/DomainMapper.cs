@@ -19,18 +19,30 @@ public static class DomainMapper
     public static VehicleDesignDto ToDto(VehicleDesign d) => new(
         d.Id, d.Name, d.VehicleClass,
         d.Modules.Select(ToDto).ToList(),
-        d.CreatedUtc, d.ModifiedUtc);
+        d.CreatedUtc, d.ModifiedUtc,
+        d.Description, d.ManualCost);
 
     public static VehicleDesign FromDto(VehicleDesignDto dto) => new(
         dto.Id, dto.Name, dto.VehicleClass,
         dto.Modules.Select(FromDto),
-        dto.CreatedUtc, dto.ModifiedUtc);
+        dto.CreatedUtc, dto.ModifiedUtc,
+        dto.Description, dto.ManualCost);
 
     private static DesignModuleDto ToDto(DesignModule m) =>
-        new(m.Id, m.Name, m.SubsystemTypeId, ValuesToDto(m.Values));
+        new(m.Id, m.Name, m.SubsystemTypeId, ValuesToDto(m.Values), ToDto(m.Contribution));
 
     private static DesignModule FromDto(DesignModuleDto dto) =>
-        new(dto.Id, dto.Name, dto.SubsystemTypeId, ValuesFromDto(dto.Values));
+        new(dto.Id, dto.Name, dto.SubsystemTypeId, ValuesFromDto(dto.Values), FromDto(dto.Contribution));
+
+    // ---- ModuleContribution ----
+
+    private static ModuleContributionDto? ToDto(ModuleContribution? c) => c is null
+        ? null
+        : new(c.Weight, c.CostFloor, c.Buoyancy, c.Lift, c.Volume, c.PowerOutput, c.PowerDraw);
+
+    private static ModuleContribution? FromDto(ModuleContributionDto? dto) => dto is null
+        ? null
+        : new(dto.Weight, dto.CostFloor, dto.Buoyancy, dto.Lift, dto.Volume, dto.PowerOutput, dto.PowerDraw);
 
     // ---- Templates ----
 

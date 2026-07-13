@@ -72,6 +72,10 @@ public partial class ModuleEditorViewModel : ObservableObject
     public ObservableCollection<SummaryCard> Summary { get; } = new();
     public ObservableCollection<ResultTableView> Tables { get; } = new();
 
+    /// <summary>Fires after Compute updates <see cref="DesignModule.Contribution"/>, so the parent
+    /// design editor can refresh the vehicle-level stats floor without polling.</summary>
+    public event EventHandler? ContributionChanged;
+
     /// <summary>Writes the current field values back into the module's persisted value snapshot.</summary>
     public void CommitToModule()
     {
@@ -86,6 +90,15 @@ public partial class ModuleEditorViewModel : ObservableObject
         foreach (var (key, value) in captured)
             _module.Values[key] = value;
     }
+
+    private static bool IsReservedContributionKey(string key) => key is
+        ModuleContribution.SummaryKeys.Weight or
+        ModuleContribution.SummaryKeys.Cost or
+        ModuleContribution.SummaryKeys.Buoyancy or
+        ModuleContribution.SummaryKeys.Lift or
+        ModuleContribution.SummaryKeys.Volume or
+        ModuleContribution.SummaryKeys.PowerOutput or
+        ModuleContribution.SummaryKeys.PowerDraw;
 
     private static ParameterField BuildField(ParameterDescriptor descriptor, ParameterValues saved)
     {
@@ -135,9 +148,14 @@ public partial class ModuleEditorViewModel : ObservableObject
 
             Summary.Clear();
             foreach (var kvp in result.Summary)
+            {
+                // Reserved keys feed the vehicle stats floor — not user-facing KPI cards.
+                if (IsReservedContributionKey(kvp.Key))
+                    continue;
                 Summary.Add(new SummaryCard(
                     kvp.Key,
                     Convert.ToString(kvp.Value, System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty));
+            }
 
             Tables.Clear();
             foreach (var table in result.Tables)
@@ -145,6 +163,12 @@ public partial class ModuleEditorViewModel : ObservableObject
 
             Notes = result.Notes;
             HasResult = true;
+
+            // Persist the module's contribution to the vehicle-level stats floor. Missing keys
+            // stay null; consumed by VehicleStatsFloor.FromModules on the design overview.
+            var contribution = ModuleContribution.FromSummary(result.Summary);
+            _module.Contribution = contribution.IsEmpty ? null : contribution;
+            ContributionChanged?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {

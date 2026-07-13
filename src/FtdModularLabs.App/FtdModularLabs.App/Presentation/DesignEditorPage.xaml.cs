@@ -10,15 +10,26 @@ public sealed partial class DesignEditorPage : Page
         this.InitializeComponent();
     }
 
-    private void OnModuleDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    // Click-to-toggle: click a module to open its editor; click the currently-open module again to
+    // close it and return to the vehicle overview. Clicking a different module switches editors.
+    private void OnModuleTapped(object sender, TappedRoutedEventArgs e)
     {
         if (DataContext is not DesignEditorViewModel vm)
             return;
 
-        // Prefer the row actually double-clicked; fall back to the highlighted row.
-        var item = (e.OriginalSource as FrameworkElement)?.DataContext as ModuleListItem
-                   ?? vm.SelectedModuleItem;
-        if (item is not null)
-            vm.OpenModuleCommand.Execute(item);
+        var item = (e.OriginalSource as FrameworkElement)?.DataContext as ModuleListItem;
+        if (item is null)
+            return;
+
+        if (ReferenceEquals(item, vm.EnteredModule))
+        {
+            vm.EnteredModule = null;
+            vm.SelectedModuleItem = null;
+        }
+        else
+        {
+            vm.EnteredModule = item;
+        }
+        e.Handled = true;
     }
 }

@@ -7,7 +7,12 @@ namespace FtdModularLabs.Domain.Model;
 /// </summary>
 public sealed class DesignModule
 {
-    public DesignModule(Guid id, string name, string subsystemTypeId, IDictionary<string, object?>? values = null)
+    public DesignModule(
+        Guid id,
+        string name,
+        string subsystemTypeId,
+        IDictionary<string, object?>? values = null,
+        ModuleContribution? contribution = null)
     {
         Id = id;
         Name = name;
@@ -15,6 +20,7 @@ public sealed class DesignModule
         Values = values is null
             ? new Dictionary<string, object?>()
             : new Dictionary<string, object?>(values);
+        Contribution = contribution;
     }
 
     public Guid Id { get; }
@@ -31,4 +37,8 @@ public sealed class DesignModule
     /// subsystem type without a calculator.
     /// </summary>
     public Dictionary<string, object?> Values { get; }
+
+    /// <summary>What this module contributes to the vehicle-level stats floor. Populated by the
+    /// module editor after a successful compute; <c>null</c> when not yet computed.</summary>
+    public ModuleContribution? Contribution { get; set; }
 }

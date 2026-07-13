@@ -128,6 +128,21 @@ public sealed class ApsShellModule : ICalculationModule
         }
 
         var best = top[0];
+
+        // Per-turret material cost / volume floor — sum every subsystem the shell config needs.
+        // The shell computes these in absolute (per-loader) units, so they are a valid contribution
+        // to the vehicle-level VehicleStatsFloor.
+        var turretCost =
+            best.Shell.LoaderCost + best.Shell.RecoilCost + best.Shell.CoolerCost +
+            best.Shell.ChargerCost + best.Shell.EngineCost +
+            best.Shell.FuelAccessCost + best.Shell.FuelStorageCost +
+            best.Shell.AmmoAccessCost + best.Shell.AmmoStorageCost;
+        var turretVolume =
+            best.Shell.LoaderVolume + best.Shell.RecoilVolume + best.Shell.CoolerVolume +
+            best.Shell.ChargerVolume + best.Shell.EngineVolume +
+            best.Shell.FuelAccessVolume + best.Shell.FuelStorageVolume +
+            best.Shell.AmmoAccessVolume + best.Shell.AmmoStorageVolume;
+
         var summary = new Dictionary<string, object>
         {
             ["Recommended shell"] = best.Config,
@@ -137,6 +152,10 @@ public sealed class ApsShellModule : ICalculationModule
             ["Muzzle velocity"] = $"{best.Shell.Velocity:N0} m/s",
             ["Armor pierce (AP)"] = $"{best.Shell.ArmorPierce:N1}",
             ["Target front AC"] = scheme.LayerList.Count > 0 ? $"{scheme.LayerList[0].AC:N1}" : "—",
+            // Reserved keys read by ModuleContribution.FromSummary (Domain) to feed the vehicle
+            // stats floor. Key strings must match ModuleContribution.SummaryKeys.
+            ["cost"] = (double)turretCost,
+            ["volume"] = (double)turretVolume,
         };
 
         var table = new ResultTable(

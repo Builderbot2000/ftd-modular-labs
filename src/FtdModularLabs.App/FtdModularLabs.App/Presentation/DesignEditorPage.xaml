@@ -122,8 +122,8 @@
           <TextBlock Text="Modules" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,8,0,0" />
           <ListView ItemsSource="{Binding Modules}"
                     SelectedItem="{Binding SelectedModuleItem, Mode=TwoWay}"
-                    DoubleTapped="OnModuleDoubleTapped"
-                    ToolTipService.ToolTip="Double-click a module to open it"
+                    Tapped="OnModuleTapped"
+                    ToolTipService.ToolTip="Click to open a module. Click the open module again to return to the overview."
                     MaxHeight="360">
             <ListView.ItemTemplate>
               <DataTemplate>
@@ -157,11 +157,74 @@
         </StackPanel>
       </ScrollViewer>
 
-      <!-- Detail: the selected module's editor -->
+      <!-- Detail: the vehicle overview (when no module is entered) or the module editor. -->
       <Grid Grid.Column="1">
-        <TextBlock Text="Double-click a module to edit it."
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"
-                   Visibility="{Binding HasEnteredModule, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+        <!-- Vehicle overview: description, manual cost, and the aggregate stats floor. -->
+        <ScrollViewer Visibility="{Binding HasEnteredModule, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}">
+          <StackPanel Spacing="12" Margin="24" MaxWidth="680" HorizontalAlignment="Left">
+            <TextBlock Text="Vehicle overview" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock TextWrapping="Wrap" Opacity="0.7"
+                       Text="A datasheet for this design. Type in a description and the final material cost after building in-game. The stats floor sums each module's computed contribution and grows as more modules are computed." />
+
+            <TextBox Header="Description" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="96"
+                     Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <NumberBox Header="Manual cost (material)"
+                       Value="{Binding ManualCost, Mode=TwoWay}"
+                       PlaceholderText="Enter after building in-game"
+                       SpinButtonPlacementMode="Compact" Minimum="0" />
+
+            <TextBlock Text="Stats floor" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,0" />
+            <TextBlock TextWrapping="Wrap" Opacity="0.6"
+                       Text="Lower-bound totals summed from module calculators. Modules without a wired calculator contribute nothing yet." />
+
+            <Grid ColumnSpacing="24" RowSpacing="8" Margin="0,4,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Weight floor" Opacity="0.7" />
+              <TextBlock Grid.Row="0" Grid.Column="1"
+                         Text="{Binding Floor.Weight, Converter={StaticResource NullableDouble}, ConverterParameter=N1}" />
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Cost floor" Opacity="0.7" />
+              <TextBlock Grid.Row="1" Grid.Column="1"
+                         Text="{Binding Floor.CostFloor, Converter={StaticResource NullableDouble}, ConverterParameter=N0}" />
+
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="Volume floor" Opacity="0.7" />
+              <TextBlock Grid.Row="2" Grid.Column="1"
+                         Text="{Binding Floor.Volume, Converter={StaticResource NullableDouble}, ConverterParameter=N1}" />
+
+              <TextBlock Grid.Row="3" Grid.Column="0" Text="Buoyancy floor" Opacity="0.7" />
+              <TextBlock Grid.Row="3" Grid.Column="1"
+                         Text="{Binding Floor.Buoyancy, Converter={StaticResource NullableDouble}, ConverterParameter=N1}" />
+
+              <TextBlock Grid.Row="4" Grid.Column="0" Text="Lift floor" Opacity="0.7" />
+              <TextBlock Grid.Row="4" Grid.Column="1"
+                         Text="{Binding Floor.Lift, Converter={StaticResource NullableDouble}, ConverterParameter=N1}" />
+
+              <TextBlock Grid.Row="5" Grid.Column="0" Text="Power output floor" Opacity="0.7" />
+              <TextBlock Grid.Row="5" Grid.Column="1"
+                         Text="{Binding Floor.PowerOutput, Converter={StaticResource NullableDouble}, ConverterParameter=N1}" />
+
+              <TextBlock Grid.Row="6" Grid.Column="0" Text="Power draw floor" Opacity="0.7" />
+              <TextBlock Grid.Row="6" Grid.Column="1"
+                         Text="{Binding Floor.PowerDraw, Converter={StaticResource NullableDouble}, ConverterParameter=N1}" />
+            </Grid>
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- Module editor: shown when a module has been double-clicked. -->
         <StackPanel Visibility="{Binding HasEnteredModule, Converter={StaticResource BoolToVisibility}}">
           <TextBox Header="Module name" Margin="24,16,24,0" MaxWidth="680" HorizontalAlignment="Left"
                    Text="{Binding EnteredModule.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />

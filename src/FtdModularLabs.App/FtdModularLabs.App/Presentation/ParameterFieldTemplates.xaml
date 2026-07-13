@@ -3,6 +3,7 @@
                     xmlns:local="using:FtdModularLabs.App.Presentation">
 
   <local:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+  <local:NullableDoubleConverter x:Key="NullableDouble" />
 
   <!-- Editor templates, one per ParameterKind. Each binds the field's Value two-way. -->
   <DataTemplate x:Key="NumberFieldTemplate">

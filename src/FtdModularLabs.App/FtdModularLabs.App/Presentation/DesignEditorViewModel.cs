@@ -62,6 +62,8 @@ public partial class DesignEditorViewModel : ObservableObject
 
         name = design.Name;
         vehicleClass = design.VehicleClass;
+        description = design.Description;
+        manualCost = design.ManualCost;
 
         Modules = new ObservableCollection<ModuleListItem>(
             design.Modules.Select(m => new ModuleListItem(m, registry)));
@@ -94,6 +96,22 @@ public partial class DesignEditorViewModel : ObservableObject
 
     partial void OnVehicleClassChanged(string value) => _design.VehicleClass = value;
 
+    [ObservableProperty]
+    private string description;
+
+    partial void OnDescriptionChanged(string value) => _design.Description = value;
+
+    [ObservableProperty]
+    private double? manualCost;
+
+    partial void OnManualCostChanged(double? value) => _design.ManualCost = value;
+
+    /// <summary>The vehicle-level stats floor, summed from every module's contribution. Recomputed
+    /// whenever modules are added, removed, or a module's calculator produces a fresh contribution.</summary>
+    public VehicleStatsFloor Floor => VehicleStatsFloor.FromModules(_design.Modules);
+
+    private void RaiseFloorChanged() => OnPropertyChanged(nameof(Floor));
+
     // ---- module list + detail ----
 
     public ObservableCollection<ModuleListItem> Modules { get; }
@@ -115,17 +133,20 @@ public partial class DesignEditorViewModel : ObservableObject
     partial void OnEnteredModuleChanged(ModuleListItem? oldValue, ModuleListItem? newValue)
     {
         // Persist edits from the previously-open module before switching.
-        ModuleEditor?.CommitToModule();
+        if (ModuleEditor is not null)
+        {
+            ModuleEditor.CommitToModule();
+            ModuleEditor.ContributionChanged -= OnModuleContributionChanged;
+        }
         ModuleEditor = newValue is null ? null : new ModuleEditorViewModel(newValue.Model, _registry);
+        if (ModuleEditor is not null)
+            ModuleEditor.ContributionChanged += OnModuleContributionChanged;
+        // Leaving a module (newValue == null) is when the overview pane comes into view; refresh
+        // the floor so any just-computed contribution is reflected.
+        RaiseFloorChanged();
     }
 
-    /// <summary>Enters a module (opens its editor). Triggered by double-clicking a list row.</summary>
-    [RelayCommand]
-    private void OpenModule(ModuleListItem? item)
-    {
-        if (item is not null)
-            EnteredModule = item;
-    }
+    private void OnModuleContributionChanged(object? sender, EventArgs e) => RaiseFloorChanged();
 
     // ---- add-module picker ----
 
@@ -163,6 +184,7 @@ public partial class DesignEditorViewModel : ObservableObject
             SelectedModuleItem = null;
         if (ReferenceEquals(EnteredModule, item))
             EnteredModule = null;
+        RaiseFloorChanged();
     }
 
     [RelayCommand]
@@ -218,6 +240,7 @@ public partial class DesignEditorViewModel : ObservableObject
         EnteredModule = item;
         NewModuleName = "";
         StatusMessage = $"Added '{moduleName}'.";
+        RaiseFloorChanged();
         return Task.CompletedTask;
     }
 
@@ -225,6 +248,7 @@ public partial class DesignEditorViewModel : ObservableObject
     {
         ModuleEditor?.CommitToModule();
         await _repo.SaveAsync(_design);
+        RaiseFloorChanged();
         StatusMessage = "Saved.";
     }
 
