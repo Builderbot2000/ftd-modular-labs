@@ -1,0 +1,54 @@
+<Project Sdk="Uno.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\FtdModularLabs.Core\FtdModularLabs.Core.csproj" />
+    <ProjectReference Include="..\..\FtdModularLabs.Domain\FtdModularLabs.Domain.csproj" />
+    <ProjectReference Include="..\..\FtdModularLabs.App.Presentation\FtdModularLabs.App.Presentation.csproj" />
+    <ProjectReference Include="..\..\FtdModularLabs.Modules.Demo\FtdModularLabs.Modules.Demo.csproj" />
+    <ProjectReference Include="..\..\FtdModularLabs.Modules.Aps\FtdModularLabs.Modules.Aps.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!--
+      Desktop (Skia) is the always-built head. The WebAssembly head is preserved but opt-in,
+      because it needs the 'wasm-tools' workload (install via uno-check or
+      'dotnet workload install wasm-tools'). Once installed, build/run it with -p:EnableWasm=true.
+    -->
+    <EnableWasm Condition="'$(EnableWasm)' == ''">false</EnableWasm>
+    <TargetFrameworks>net9.0-desktop</TargetFrameworks>
+    <TargetFrameworks Condition="'$(EnableWasm)' == 'true'">net9.0-browserwasm;net9.0-desktop</TargetFrameworks>
+
+    <OutputType>Exe</OutputType>
+    <UnoSingleProject>true</UnoSingleProject>
+
+    <!-- Display name -->
+    <ApplicationTitle>FtdModularLabs.App</ApplicationTitle>
+    <!-- App Identifier -->
+    <ApplicationId>com.cyberium.ftdoptima</ApplicationId>
+    <!-- Versions -->
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+    <!-- Package Publisher -->
+    <ApplicationPublisher>FtdModularLabs.App</ApplicationPublisher>
+    <!-- Package Description -->
+    <Description>FtdModularLabs.App powered by Uno Platform.</Description>
+
+    <!--
+      UnoFeatures are used to quickly add and manage features enabled for your app.
+      https://aka.platform.uno/singleproject-features
+    -->
+    <UnoFeatures>
+      Lottie;
+      Hosting;
+      Toolkit;
+      Logging;
+      Mvvm;
+      Configuration;
+      HttpKiota;
+      Serialization;
+      Localization;
+      Navigation;
+      ThemeService;
+      SkiaRenderer;
+    </UnoFeatures>
+  </PropertyGroup>
+
+</Project>

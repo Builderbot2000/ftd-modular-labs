@@ -1,0 +1,21 @@
+<Application x:Class="FtdModularLabs.App.App"
+       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <!-- Load WinUI resources -->
+        <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+        <!-- Load Uno.UI.Toolkit resources -->
+        <ToolkitResources xmlns="using:Uno.Toolkit.UI" />
+        <!-- Shared generic parameter-form templates (used by the module editor). -->
+        <ResourceDictionary Source="ms-appx:///Presentation/ParameterFieldTemplates.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+
+      <!-- Add resources here -->
+
+    </ResourceDictionary>
+  </Application.Resources>
+
+</Application>

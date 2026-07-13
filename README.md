@@ -1,4 +1,4 @@
-# FTD Optima — Vehicle Design Optimizer
+# FTD Modular Labs — Vehicle Design Optimizer
 
 A desktop app (Uno Platform / .NET 9) for designing and optimizing vehicles for the game
 **From the Depths**. You create and manage **vehicle designs** (e.g. *Valiant-class Battleship*),
@@ -11,22 +11,22 @@ persistable ("calculator coming soon").
 ## Solution layout
 
 ```
-FtdOptima.sln
+FtdModularLabs.sln
 src/
-  FtdOptima.Core/            Calculator framework — ICalculationModule, ModuleSchema,
+  FtdModularLabs.Core/            Calculator framework — ICalculationModule, ModuleSchema,
                              ParameterValues, CalculationResult (pure .NET, no UI).
-  FtdOptima.Modules.Aps/     The APS shell optimizer (a calculator) + its physics model.
-  FtdOptima.Modules.Demo/    A trivial demo calculator.
-  FtdOptima.Domain/          Design-management layer (pure .NET, references only Core):
+  FtdModularLabs.Modules.Aps/     The APS shell optimizer (a calculator) + its physics model.
+  FtdModularLabs.Modules.Demo/    A trivial demo calculator.
+  FtdModularLabs.Domain/          Design-management layer (pure .NET, references only Core):
                                Catalog/       SubsystemType + SubsystemCatalog + registry
                                Model/         VehicleDesign, DesignModule, templates, DesignFactory
                                Serialization/ ParameterValueSnapshot, DTOs, JSON options
                                Storage/       repositories, IAppDataPaths, embedded built-in templates
                              Templates/*.json are shipped as embedded resources.
-  FtdOptima.App.Presentation/ ParameterField (bindable form field).
-  FtdOptima.App/             Uno single-project app (Skia desktop head; WASM opt-in).
+  FtdModularLabs.App.Presentation/ ParameterField (bindable form field).
+  FtdModularLabs.App/             Uno single-project app (Skia desktop head; WASM opt-in).
 tests/
-  FtdOptima.Core.Tests/      xUnit — framework, serialization round-trip, repository CRUD,
+  FtdModularLabs.Core.Tests/      xUnit — framework, serialization round-trip, repository CRUD,
                              template copy-on-create, registry, and an end-to-end flow test.
 ```
 
@@ -36,8 +36,8 @@ tests/
   (schema-in → result-out), discovered via DI and keyed by a stable `Id`. `SubsystemCatalog` lists
   every designable subsystem *type*; a type carries the `Id` of its calculator when one exists.
   A `DesignModule` is a persisted *instance* of a type with a saved parameter-value snapshot.
-- **Persistence.** Local JSON files under the per-user app-data folder (`%LOCALAPPDATA%/FtdOptima`
-  on Windows, `~/.local/share/FtdOptima` on Linux): one file per design under `designs/`, user
+- **Persistence.** Local JSON files under the per-user app-data folder (`%LOCALAPPDATA%/FtdModularLabs`
+  on Windows, `~/.local/share/FtdModularLabs` on Linux): one file per design under `designs/`, user
   templates under `templates/`. Built-in templates are embedded resources merged in at read time.
   Storage sits behind `IVehicleDesignRepository` / `ITemplateRepository`, so a WASM key/value store
   can slot in later (the JSON-file store is desktop-first).
@@ -50,10 +50,10 @@ tests/
 ## Build & run (from WSL)
 
 ```bash
-dotnet build FtdOptima.sln
-dotnet test tests/FtdOptima.Core.Tests
-dotnet run --project src/FtdOptima.App/FtdOptima.App -f net9.0-desktop   # needs WSLg/display
+dotnet build FtdModularLabs.sln
+dotnet test tests/FtdModularLabs.Core.Tests
+dotnet run --project src/FtdModularLabs.App/FtdModularLabs.App -f net9.0-desktop   # needs WSLg/display
 ```
 
 The WebAssembly head is preserved but opt-in (needs the `wasm-tools` workload):
-`dotnet build src/FtdOptima.App/FtdOptima.App -p:EnableWasm=true`.
+`dotnet build src/FtdModularLabs.App/FtdModularLabs.App -p:EnableWasm=true`.
