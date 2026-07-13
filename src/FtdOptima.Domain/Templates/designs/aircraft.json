@@ -1,0 +1,34 @@
+{
+  "templateId": "aircraft",
+  "name": "Aircraft",
+  "vehicleClass": "Aircraft",
+  "modules": [
+    {
+      "templateId": "aircraft.jet",
+      "name": "Jet Propulsion",
+      "subsystemTypeId": "prop.jet",
+      "values": {}
+    },
+    {
+      "templateId": "aircraft.autocannon",
+      "name": "Autocannon",
+      "subsystemTypeId": "weapon.aps",
+      "values": {
+        "targetArmor": [ "Metal 4m Beam", "Alloy 4m Beam" ],
+        "damageType": "Kinetic",
+        "optimizeFor": "DPS per volume",
+        "minGauge": 18,
+        "maxGauge": 100,
+        "maxLoaderLength": 2,
+        "impactAngle": 30,
+        "allowRail": false
+      }
+    },
+    {
+      "templateId": "aircraft.mainframe",
+      "name": "AI Mainframe",
+      "subsystemTypeId": "ai.mainframe",
+      "values": {}
+    }
+  ]
+}

@@ -9,6 +9,8 @@
         <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
         <!-- Load Uno.UI.Toolkit resources -->
         <ToolkitResources xmlns="using:Uno.Toolkit.UI" />
+        <!-- Shared generic parameter-form templates (used by the module editor). -->
+        <ResourceDictionary Source="ms-appx:///Presentation/ParameterFieldTemplates.xaml" />
       </ResourceDictionary.MergedDictionaries>
 
       <!-- Add resources here -->

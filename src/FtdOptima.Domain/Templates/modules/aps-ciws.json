@@ -1,0 +1,15 @@
+{
+  "templateId": "aps.ciws",
+  "name": "APS CIWS (rapid-fire)",
+  "subsystemTypeId": "weapon.aps",
+  "values": {
+    "targetArmor": [ "Metal 4m Beam" ],
+    "damageType": "Frag",
+    "optimizeFor": "DPS",
+    "minGauge": 18,
+    "maxGauge": 60,
+    "maxLoaderLength": 1,
+    "impactAngle": 0,
+    "allowRail": false
+  }
+}

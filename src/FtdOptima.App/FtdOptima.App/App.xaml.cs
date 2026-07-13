@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using FtdOptima.Domain.Model;
 using Uno.Resizetizer;
 
 namespace FtdOptima.App;
@@ -74,15 +75,19 @@ public partial class App : Application
 })
                 .ConfigureServices((context, services) =>
                 {
-                    // Register all FTD calculator modules for discovery by the shell.
+                    // Calculator modules + the design-management layer (repositories, registry, paths).
                     services.AddFtdModules();
+                    services.AddFtdPersistence();
                 })
                 .UseNavigation(RegisterRoutes)
             );
         MainWindow = builder.Window;
 
         #if DEBUG
-        MainWindow.UseStudio();
+        // Uno Hot Design pins a diagnostics overlay to the top-left corner, which sits on top of
+        // the page's back button and other top-left chrome. Left disabled so app controls stay
+        // reachable during development; re-enable if you need the visual designer.
+        // MainWindow.UseStudio();
 #endif
                 MainWindow.SetWindowIcon();
 
@@ -93,16 +98,18 @@ public partial class App : Application
     {
         views.Register(
             new ViewMap(ViewModel: typeof(ShellViewModel)),
-            new ViewMap<MainPage, MainViewModel>(),
-            new DataViewMap<SecondPage, SecondViewModel, Entity>()
+            new ViewMap<DesignsListPage, DesignsListViewModel>(),
+            new DataViewMap<DesignEditorPage, DesignEditorViewModel, VehicleDesign>(),
+            new ViewMap<TemplatesPage, TemplatesViewModel>()
         );
 
         routes.Register(
             new RouteMap("", View: views.FindByViewModel<ShellViewModel>(),
                 Nested:
                 [
-                    new ("Main", View: views.FindByViewModel<MainViewModel>(), IsDefault:true),
-                    new ("Second", View: views.FindByViewModel<SecondViewModel>()),
+                    new ("Designs", View: views.FindByViewModel<DesignsListViewModel>(), IsDefault:true),
+                    new ("DesignEditor", View: views.FindByViewModel<DesignEditorViewModel>()),
+                    new ("Templates", View: views.FindByViewModel<TemplatesViewModel>()),
                 ]
             )
         );
