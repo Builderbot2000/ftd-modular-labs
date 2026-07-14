@@ -1,7 +1,9 @@
+using FtdModularLabs.Core;
 using FtdModularLabs.Domain.Catalog;
 using FtdModularLabs.Domain.Model;
 using FtdModularLabs.Domain.Storage;
 using FtdModularLabs.Modules.Aps;
+using FtdModularLabs.Modules.Armor;
 
 namespace FtdModularLabs.Core.Tests;
 
@@ -33,7 +35,7 @@ public class VehicleDesignRepositoryTests
 
         var design = DesignFactory.CreateBlank("Valiant-class Battleship", "Ship");
         design.Modules.Add(new DesignModule(Guid.NewGuid(), "Main Battery", "weapon.aps",
-            new Dictionary<string, object?> { ["minGauge"] = 200.0, ["targetArmor"] = new List<string> { "Heavy Beam" } }));
+            new Dictionary<string, object?> { ["minGauge"] = 200.0, ["targetArmor"] = Guid.Empty.ToString() }));
         await repo.SaveAsync(design);
 
         var all = await repo.GetAllAsync();
@@ -133,7 +135,7 @@ public class TemplateRepositoryTests
 
 public class BuiltInTemplateValidityTests
 {
-    private static readonly SubsystemTypeRegistry Registry = new(new[] { new ApsShellModule() });
+    private static readonly SubsystemTypeRegistry Registry = new(new ICalculationModule[] { new ApsShellModule(), new ArmorModule() });
 
     [Fact]
     public void EveryBuiltInModuleTemplate_HasKnownTypeAndValidValues()
@@ -169,8 +171,10 @@ public class DesignFactoryTests
     [Fact]
     public void CreateFromTemplate_DeepCopies_Independent()
     {
+        // Use an Armor module template — its targetArmor is a real LayerStack (List<string>), so
+        // the deep-copy assertion below has an actual collection to mutate.
         var moduleValues = new Dictionary<string, object?> { ["targetArmor"] = new List<string> { "Heavy Beam" } };
-        var moduleTemplate = new ModuleTemplate("mt", "Gun", "weapon.aps", moduleValues, IsBuiltIn: true);
+        var moduleTemplate = new ModuleTemplate("mt", "Belt", "defence.armor", moduleValues, IsBuiltIn: true);
         var template = new DesignTemplate("dt", "Ship", "Ship", new[] { moduleTemplate }, IsBuiltIn: true);
 
         var a = DesignFactory.CreateFromTemplate(template, "A");
@@ -201,10 +205,13 @@ public class SubsystemTypeRegistryTests
     [Fact]
     public void ResolvesApsCalculator_AndNullForCalculatorlessTypes()
     {
-        var registry = new SubsystemTypeRegistry(new[] { new ApsShellModule() });
+        var registry = new SubsystemTypeRegistry(new ICalculationModule[] { new ApsShellModule(), new ArmorModule() });
 
         Assert.NotNull(registry.GetCalculator("weapon.aps"));
         Assert.NotNull(registry.GetSchema("weapon.aps"));
+
+        Assert.NotNull(registry.GetCalculator("defence.armor"));
+        Assert.NotNull(registry.GetSchema("defence.armor"));
 
         Assert.Null(registry.GetCalculator("power.steam-engine"));
         Assert.Null(registry.GetSchema("power.steam-engine"));

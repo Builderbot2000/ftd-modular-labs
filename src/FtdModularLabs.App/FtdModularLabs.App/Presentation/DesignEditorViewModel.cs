@@ -138,7 +138,7 @@ public partial class DesignEditorViewModel : ObservableObject
             ModuleEditor.CommitToModule();
             ModuleEditor.ContributionChanged -= OnModuleContributionChanged;
         }
-        ModuleEditor = newValue is null ? null : new ModuleEditorViewModel(newValue.Model, _registry);
+        ModuleEditor = newValue is null ? null : new ModuleEditorViewModel(newValue.Model, _design, _registry);
         if (ModuleEditor is not null)
             ModuleEditor.ContributionChanged += OnModuleContributionChanged;
         // Leaving a module (newValue == null) is when the overview pane comes into view; refresh

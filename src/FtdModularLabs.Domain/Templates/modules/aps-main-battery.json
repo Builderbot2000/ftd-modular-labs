@@ -3,7 +3,6 @@
   "name": "APS Main Battery",
   "subsystemTypeId": "weapon.aps",
   "values": {
-    "targetArmor": [ "HA 4m Beam", "Metal 4m Beam", "Metal 4m Beam" ],
     "damageType": "Kinetic",
     "optimizeFor": "DPS per cost",
     "minGauge": 100,

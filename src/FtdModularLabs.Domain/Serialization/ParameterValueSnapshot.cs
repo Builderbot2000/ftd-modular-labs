@@ -66,7 +66,7 @@ public static class ParameterValueSnapshot
         ParameterKind.Number => ToDouble(raw),
         ParameterKind.Integer => ToInt(raw),
         ParameterKind.Boolean => ToBool(raw),
-        ParameterKind.Enum or ParameterKind.Text => ToStr(raw),
+        ParameterKind.Enum or ParameterKind.Text or ParameterKind.ModuleReference => ToStr(raw),
         ParameterKind.LayerStack => ToStringList(raw),
         _ => ToStr(raw),
     };

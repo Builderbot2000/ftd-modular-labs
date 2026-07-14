@@ -13,4 +13,5 @@ public sealed record ParameterDescriptor(
     double? Max = null,
     IReadOnlyList<string>? Options = null,
     string? Unit = null,
-    string? Help = null);
+    string? Help = null,
+    string? ReferenceSubsystemTypeId = null);

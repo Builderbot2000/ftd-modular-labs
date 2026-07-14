@@ -1,8 +1,10 @@
+using FtdModularLabs.Core;
 using FtdModularLabs.Domain.Catalog;
 using FtdModularLabs.Domain.Model;
 using FtdModularLabs.Domain.Serialization;
 using FtdModularLabs.Domain.Storage;
 using FtdModularLabs.Modules.Aps;
+using FtdModularLabs.Modules.Armor;
 
 namespace FtdModularLabs.Core.Tests;
 

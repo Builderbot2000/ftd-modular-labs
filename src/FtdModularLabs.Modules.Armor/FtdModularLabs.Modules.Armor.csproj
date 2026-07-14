@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FtdModularLabs.Core\FtdModularLabs.Core.csproj" />
-    <ProjectReference Include="..\FtdModularLabs.Modules.Armor\FtdModularLabs.Modules.Armor.csproj" />
   </ItemGroup>
 
   <ItemGroup>

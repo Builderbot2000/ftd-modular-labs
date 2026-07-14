@@ -1,6 +1,8 @@
 using FtdModularLabs.Core;
 using FtdModularLabs.Modules.Aps;
 using FtdModularLabs.Modules.Aps.Model;
+using FtdModularLabs.Modules.Armor;
+using FtdModularLabs.Modules.Armor.Model;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FtdModularLabs.Core.Tests;
@@ -94,7 +96,7 @@ public class ApsShellTests
         var shell = new Shell(200f, ApsModule.APHead, null, Body(4), 10, 0, 0f);
         shell.EvaluateKinetic(scheme, new TestConditions());
 
-        float vMin = scheme.CalculateMinVelocityToPenetrate(shell, 45f);
+        float vMin = shell.MinVelocityToPenetrate(scheme, 45f);
         Assert.True(vMin > 0f && !float.IsInfinity(vMin));
 
         // At the solved velocity, KD should equal the requirement (within tolerance).
@@ -112,8 +114,14 @@ public class ApsShellTests
     public async Task Module_recommends_a_penetrating_config_for_a_metal_stack()
     {
         var module = new ApsShellModule();
+        // The module editor normally resolves the targetArmor ModuleReference to the referenced
+        // armor module's raw Values dict before compute. In tests we build the dict directly.
+        var armorValues = new Dictionary<string, object?>
+        {
+            ["targetArmor"] = new List<string> { ArmorLayer.MetalBeam.Name, ArmorLayer.MetalBeam.Name },
+        };
         var inputs = new ParameterValues()
-            .Set("targetArmor", new[] { ArmorLayer.MetalBeam.Name, ArmorLayer.MetalBeam.Name })
+            .Set("targetArmor", armorValues)
             .Set("optimizeFor", "DPS per cost")
             .Set("minGauge", 100.0).Set("maxGauge", 500.0)
             .Set("maxLoaderLength", 4).Set("impactAngle", 45.0).Set("allowRail", false);
@@ -163,8 +171,12 @@ public class ApsShellTests
     public async Task Module_optimizes_HE_against_a_light_target()
     {
         var module = new ApsShellModule();
+        var armorValues = new Dictionary<string, object?>
+        {
+            ["targetArmor"] = new List<string> { ArmorLayer.WoodBeam.Name },
+        };
         var inputs = new ParameterValues()
-            .Set("targetArmor", new[] { ArmorLayer.WoodBeam.Name })
+            .Set("targetArmor", armorValues)
             .Set("damageType", "HE")
             .Set("optimizeFor", "DPS per cost")
             .Set("minGauge", 100.0).Set("maxGauge", 500.0)

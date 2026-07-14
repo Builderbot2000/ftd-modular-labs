@@ -85,6 +85,25 @@ public sealed class ParameterValues
     public string GetEnumOption(string key) => GetString(key);
 
     /// <summary>
+    /// Gets a <see cref="ParameterKind.ModuleReference"/> value as a <see cref="ParameterValues"/>
+    /// wrapping the referenced module's raw values. The module editor pre-populates this slot with
+    /// the referenced module's <c>Values</c> dictionary before compute; missing / unresolved
+    /// references throw <see cref="KeyNotFoundException"/>.
+    /// </summary>
+    public ParameterValues GetReferencedValues(string key)
+    {
+        var raw = Require(key);
+        return raw switch
+        {
+            ParameterValues pv => pv,
+            IDictionary<string, object?> md => new ParameterValues(md),
+            IReadOnlyDictionary<string, object?> ro => new ParameterValues(new Dictionary<string, object?>(ro)),
+            _ => throw new InvalidOperationException(
+                $"Parameter '{key}' is not a resolved module reference — expected a values dictionary, got {raw.GetType().Name}."),
+        };
+    }
+
+    /// <summary>
     /// Gets a <see cref="ParameterKind.LayerStack"/> value as an ordered list of option strings.
     /// Accepts an <see cref="IEnumerable{String}"/>, or a comma-separated string. Returns an empty
     /// list when the value is absent.
@@ -172,6 +191,23 @@ public sealed class ParameterValues
                     break;
 
                 case ParameterKind.Text:
+                    break;
+
+                case ParameterKind.ModuleReference:
+                    // Accept a string (a persisted Guid; empty string = "unset") or a dictionary of
+                    // referenced values (resolved by the module editor at compute time). Empty /
+                    // unset references are not errors here; the compute path surfaces friendly
+                    // "pick a target" messaging when the reference is missing.
+                    if (raw is string)
+                    {
+                        // any string is fine — empty = unset, non-empty = a picked Guid
+                    }
+                    else if (raw is not IDictionary<string, object?>
+                             && raw is not IReadOnlyDictionary<string, object?>
+                             && raw is not ParameterValues)
+                    {
+                        errors.Add($"'{p.Label}' must reference a module.");
+                    }
                     break;
             }
         }
