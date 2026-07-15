@@ -168,18 +168,27 @@ public partial class ModuleEditorViewModel : ObservableObject
             foreach (var field in Fields)
             {
                 // ModuleReference fields carry a Guid string on-disk, but the calculator wants the
-                // referenced module's raw Values dictionary. Resolve the pick here — unresolved
-                // required refs surface as a validation error below.
+                // referenced module's values. Resolve the pick here — unresolved required refs
+                // surface as a validation error below.
                 if (field.Kind == ParameterKind.ModuleReference)
                 {
                     var picked = field.SelectedModuleChoice;
-                    if (picked is null)
+                    var refModule = picked is null
+                        ? null
+                        : _design.Modules.FirstOrDefault(m => m.Id == picked.Id);
+                    if (refModule is null)
                     {
                         values.Set(field.Key, null);
                         continue;
                     }
-                    var refModule = _design.Modules.FirstOrDefault(m => m.Id == picked.Id);
-                    values.Set(field.Key, refModule?.Values);
+                    // The referenced module's persisted Values may still be raw JsonElements (loaded
+                    // from disk and never re-edited). Normalize them through the referenced module's
+                    // own schema so the calculator reads typed values (List<string>, double, …) via
+                    // GetReferencedValues, rather than JsonElements the Core getters reject.
+                    var refSchema = _registry.GetSchema(refModule.SubsystemTypeId);
+                    values.Set(field.Key, refSchema is null
+                        ? refModule.Values
+                        : ParameterValueSnapshot.Restore(refModule.Values, refSchema));
                 }
                 else
                 {
