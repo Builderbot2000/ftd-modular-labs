@@ -66,7 +66,7 @@ public static class SubsystemCatalog
             "Chaff, flares, radar/sonar simulators, heat decoys."),
         new("defence.jammer", "Jammer / Smoke", SubsystemCategory.Defence, null,
             "Signal jammers and smoke dispensers."),
-        new("defence.armor", "Armor", SubsystemCategory.Defence, null,
+        new("defence.armor", "Armor", SubsystemCategory.Defence, "armor.spec",
             "Armor plating (also the buoyancy subsystem)."),
 
         // ---- Detection / Sensors ----

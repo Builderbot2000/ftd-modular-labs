@@ -1,4 +1,4 @@
-namespace FtdModularLabs.Modules.Aps.Model;
+namespace FtdModularLabs.Modules.Armor.Model;
 
 /// <summary>
 /// The catalogue of selectable armor layers for the armor builder. Built from the 81 verbatim

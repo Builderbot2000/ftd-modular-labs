@@ -1,3 +1,5 @@
+using FtdModularLabs.Modules.Armor.Model;
+
 namespace FtdModularLabs.Modules.Aps.Model;
 
 /// <summary>
@@ -610,5 +612,110 @@ public sealed class Shell
         Dps = PrimaryDamage / ClusterReloadTime * Uptime;
         DpsPerVolume = VolumePerLoader > 0f ? Dps / VolumePerLoader : 0f;
         DpsPerCost = CostPerLoader > 0f ? Dps / CostPerLoader : 0f;
+    }
+
+    /// <summary>
+    /// Minimum <see cref="Velocity"/> at which this shell penetrates <paramref name="scheme"/>. 0 for
+    /// an empty scheme; +infinity if the shell can never pen (zero AP or KD coefficient). Requires the
+    /// shell's overall modifiers to have been computed already (call <see cref="Evaluate"/> first).
+    /// </summary>
+    public float MinVelocityToPenetrate(Scheme scheme, float impactAngleFromPerpendicularDegrees)
+    {
+        if (scheme.LayerList.Count == 0)
+        {
+            return 0f;
+        }
+
+        float alpha = OverallArmorPierceModifier * 0.0175f; // AP / V
+        float beta = GaugeMultiplier
+                   * EffectiveProjectileModuleCount
+                   * OverallKineticDamageModifier
+                   * 0.16f
+                   * ApsModifier; // KD / V
+        if (HeadModule != ApsModule.HollowPoint)
+        {
+            beta *= MathF.Pow(500f / MathF.Max(Gauge, 100f), 0.15f);
+        }
+
+        if (alpha <= 0f || beta <= 0f)
+        {
+            return float.PositiveInfinity;
+        }
+
+        float angleDivisor = HeadModule == ApsModule.SabotHead ? 240f : 180f;
+        int layerCount = scheme.LayerList.Count;
+        float[] hpArray = new float[layerCount];
+        float[] acArray = new float[layerCount];
+        float baseAngle = 0f;
+        for (int i = 0; i < layerCount; i++)
+        {
+            ArmorLayer layer = scheme.LayerList[i];
+            if (!layer.GivesACBonus)
+            {
+                baseAngle = layer.BaseAngle;
+            }
+            hpArray[i] = layer.HP / MathF.Abs(MathF.Cos((impactAngleFromPerpendicularDegrees + baseAngle) * MathF.PI / angleDivisor));
+            acArray[i] = layer.AC;
+        }
+        float vKD = SolveMinPenVelocity(hpArray, acArray, alpha, beta);
+
+        if (HeadModule == ApsModule.HollowPoint)
+        {
+            for (int i = 0; i < layerCount; i++)
+            {
+                hpArray[i] = scheme.LayerList[i].HP;
+                acArray[i] = scheme.LayerList[i].RawAC;
+            }
+            float vThump = SolveMinPenVelocity(hpArray, acArray, alpha, beta);
+            return MathF.Min(vKD, vThump);
+        }
+
+        return vKD;
+    }
+
+    /// <summary>
+    /// Solves <c>beta·V ≥ Σ effHP·max(1, AC/(alpha·V))</c> for the smallest V. Layers are sorted by AC
+    /// ascending; between breakpoints <c>V_k = AC_k/alpha</c> the requirement is the quadratic
+    /// <c>beta·V² − S·V − T/alpha = 0</c> with positive root returned when it lands in the interval.
+    /// </summary>
+    private static float SolveMinPenVelocity(float[] hpArray, float[] acArray, float alpha, float beta)
+    {
+        int layerCount = hpArray.Length;
+
+        int[] idx = new int[layerCount];
+        for (int i = 0; i < layerCount; i++)
+        {
+            idx[i] = i;
+        }
+        Array.Sort(idx, (a, b) => acArray[a].CompareTo(acArray[b]));
+
+        float s = 0f;
+        float t = 0f;
+        for (int i = 0; i < layerCount; i++)
+        {
+            t += hpArray[i] * acArray[i];
+        }
+
+        for (int k = 0; k <= layerCount; k++)
+        {
+            float vCandidate = (s + MathF.Sqrt(s * s + 4f * beta * t / alpha)) / (2f * beta);
+
+            float lo = k == 0 ? 0f : acArray[idx[k - 1]] / alpha;
+            float hi = k == layerCount ? float.PositiveInfinity : acArray[idx[k]] / alpha;
+
+            if (vCandidate >= lo && vCandidate <= hi)
+            {
+                return vCandidate;
+            }
+
+            if (k < layerCount)
+            {
+                int j = idx[k];
+                s += hpArray[j];
+                t -= hpArray[j] * acArray[j];
+            }
+        }
+
+        return float.PositiveInfinity; // unreachable: monotonicity guarantees a match
     }
 }

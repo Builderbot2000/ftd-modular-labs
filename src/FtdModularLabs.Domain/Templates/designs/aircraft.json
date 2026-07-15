@@ -14,7 +14,6 @@
       "name": "Autocannon",
       "subsystemTypeId": "weapon.aps",
       "values": {
-        "targetArmor": [ "Metal 4m Beam", "Alloy 4m Beam" ],
         "damageType": "Kinetic",
         "optimizeFor": "DPS per volume",
         "minGauge": 18,

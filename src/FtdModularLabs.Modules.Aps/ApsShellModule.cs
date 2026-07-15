@@ -1,5 +1,6 @@
 using FtdModularLabs.Core;
 using FtdModularLabs.Modules.Aps.Model;
+using FtdModularLabs.Modules.Armor.Model;
 
 namespace FtdModularLabs.Modules.Aps;
 
@@ -12,6 +13,9 @@ namespace FtdModularLabs.Modules.Aps;
 public sealed class ApsShellModule : ICalculationModule
 {
     public const string ModuleId = "aps.shell-optimizer";
+
+    /// <summary>The subsystem type id a <c>targetArmor</c> reference must resolve to.</summary>
+    public const string ArmorSubsystemTypeId = "defence.armor";
 
     private static readonly IReadOnlyList<string> OptimizeOptions = ["DPS per cost", "DPS per volume", "DPS"];
     private static readonly IReadOnlyList<string> DamageTypeOptions =
@@ -30,10 +34,11 @@ public sealed class ApsShellModule : ICalculationModule
     [
         new ParameterDescriptor(
             Key: "targetArmor",
-            Label: "Target armor (front → back)",
-            Kind: ParameterKind.LayerStack,
-            Options: ArmorLayerLibrary.Names,
-            Help: "Build the target stack by selecting layers, outermost first. Use 'Air' for an air gap."),
+            Label: "Target armor",
+            Kind: ParameterKind.ModuleReference,
+            Default: "",
+            ReferenceSubsystemTypeId: ArmorSubsystemTypeId,
+            Help: "Pick an Armor module in this design as the target for the shell search."),
         new ParameterDescriptor(
             Key: "damageType",
             Label: "Damage type",
@@ -77,7 +82,26 @@ public sealed class ApsShellModule : ICalculationModule
 
         var resolved = inputs.WithDefaults(InputSchema);
 
-        var layerNames = resolved.GetStringList("targetArmor");
+        // The module editor resolves the targetArmor ModuleReference to the referenced armor
+        // module's raw Values dict before compute. When the ref is unset (empty string) or the
+        // ref hasn't been resolved (still a Guid string), return a friendly empty result rather
+        // than searching against a nothing-scheme.
+        var targetRaw = resolved.GetRaw("targetArmor");
+        var resolvedRef = targetRaw is IDictionary<string, object?>
+                       || targetRaw is IReadOnlyDictionary<string, object?>
+                       || targetRaw is ParameterValues;
+        if (!resolvedRef)
+        {
+            var picked = new Dictionary<string, object>
+            {
+                ["Result"] = "Pick a target armor module to search against.",
+            };
+            return Task.FromResult(new CalculationResult(picked,
+                notes: "APS shell optimizer — no target armor selected."));
+        }
+
+        var referenced = resolved.GetReferencedValues("targetArmor");
+        var layerNames = referenced.GetStringList("targetArmor");
         var layers = layerNames
             .Select(ArmorLayerLibrary.Find)
             .Where(l => l is not null)
@@ -120,7 +144,7 @@ public sealed class ApsShellModule : ICalculationModule
             var empty = new Dictionary<string, object>
             {
                 ["Result"] = layers.Count == 0
-                    ? "Add at least one armor layer to the target."
+                    ? "The referenced armor module has no layers — add layers to it first."
                     : "No configuration in range penetrates this armor — widen the gauge/loader limits or allow railguns.",
             };
             return Task.FromResult(new CalculationResult(empty,

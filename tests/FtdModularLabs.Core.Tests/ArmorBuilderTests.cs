@@ -1,7 +1,6 @@
 using FtdModularLabs.App.Presentation;
 using FtdModularLabs.Core;
-using FtdModularLabs.Modules.Aps;
-using FtdModularLabs.Modules.Aps.Model;
+using FtdModularLabs.Modules.Armor.Model;
 
 namespace FtdModularLabs.Core.Tests;
 

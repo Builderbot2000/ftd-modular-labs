@@ -17,4 +17,13 @@ public enum ParameterKind
     /// layer stack). Rendered by a dedicated list editor rather than a single-value control.
     /// </summary>
     LayerStack,
+
+    /// <summary>
+    /// A reference to another <c>DesignModule</c> in the same design, filtered by
+    /// <see cref="ParameterDescriptor.ReferenceSubsystemTypeId"/>. Persisted as the referenced
+    /// module's Guid (string); at compute time the module-editor swaps in the referenced module's
+    /// raw <c>Values</c> dictionary so the calculator can read them via
+    /// <c>ParameterValues.GetReferencedValues</c>.
+    /// </summary>
+    ModuleReference,
 }

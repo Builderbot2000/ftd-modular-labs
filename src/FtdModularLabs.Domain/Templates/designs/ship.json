@@ -4,11 +4,20 @@
   "vehicleClass": "Ship",
   "modules": [
     {
+      "templateId": "ship.belt-armor",
+      "name": "Belt Armor",
+      "subsystemTypeId": "defence.armor",
+      "values": {
+        "targetArmor": [ "HA 4m Beam", "Metal 4m Beam", "Metal 4m Beam" ],
+        "attackingAps": "",
+        "impactAngle": 45
+      }
+    },
+    {
       "templateId": "ship.main-battery",
       "name": "Main Battery",
       "subsystemTypeId": "weapon.aps",
       "values": {
-        "targetArmor": [ "HA 4m Beam", "Metal 4m Beam", "Metal 4m Beam" ],
         "damageType": "Kinetic",
         "optimizeFor": "DPS per cost",
         "minGauge": 100,

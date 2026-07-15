@@ -1,3 +1,5 @@
+using FtdModularLabs.Modules.Armor.Model;
+
 namespace FtdModularLabs.Modules.Aps.Model;
 
 /// <summary>What the optimizer maximizes.</summary>

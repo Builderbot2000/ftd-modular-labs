@@ -1,4 +1,5 @@
 using FtdModularLabs.Core;
+using FtdModularLabs.Modules.Armor;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FtdModularLabs.Modules.Aps;
@@ -7,5 +8,7 @@ namespace FtdModularLabs.Modules.Aps;
 public static class ApsModuleServiceCollectionExtensions
 {
     public static IServiceCollection AddApsModule(this IServiceCollection services) =>
-        services.AddCalculationModule<ApsShellModule>();
+        services
+            .AddCalculationModule<ApsShellModule>()
+            .AddSingleton<IBreachRater, ApsBreachRater>();
 }

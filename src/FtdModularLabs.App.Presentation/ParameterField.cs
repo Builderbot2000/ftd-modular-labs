@@ -20,6 +20,23 @@ public sealed class LayerStackEntry
     public ParameterField Owner { get; }
 }
 
+/// <summary>One selectable module in a <see cref="ParameterKind.ModuleReference"/> picker.</summary>
+public sealed class ModuleReferenceChoice
+{
+    public ModuleReferenceChoice(Guid id, string display)
+    {
+        Id = id;
+        Display = display;
+    }
+
+    public Guid Id { get; }
+
+    /// <summary>User-facing label shown in the picker (e.g. the target module's name).</summary>
+    public string Display { get; }
+
+    public override string ToString() => Display;
+}
+
 /// <summary>
 /// An editable, bindable wrapper around one <see cref="ParameterDescriptor"/>. The generic form
 /// binds each control's value here; <see cref="ModuleRunnerViewModel"/> reads <see cref="EffectiveValue"/>
@@ -66,12 +83,26 @@ public partial class ParameterField : ObservableObject
     [ObservableProperty]
     private string? selectedOptionToAdd;
 
+    // ---- ModuleReference support --------------------------------------------------------------
+
+    /// <summary>Available modules the user can pick for a <see cref="ParameterKind.ModuleReference"/>
+    /// field. Populated by the module editor from the surrounding design, filtered by subsystem type.</summary>
+    public ObservableCollection<ModuleReferenceChoice> ModuleChoices { get; } = new();
+
+    /// <summary>The currently-picked module reference. Two-way bound to the picker ComboBox.</summary>
+    [ObservableProperty]
+    private ModuleReferenceChoice? selectedModuleChoice;
+
     /// <summary>
-    /// The value handed to the module: the ordered option names for a LayerStack, otherwise
-    /// the scalar <see cref="Value"/>.
+    /// The value handed to the module: the ordered option names for a LayerStack, the picked module's
+    /// Guid (as a string) for a ModuleReference, or the scalar <see cref="Value"/> otherwise.
     /// </summary>
-    public object? EffectiveValue =>
-        Kind == ParameterKind.LayerStack ? Stack.Select(e => e.Name).ToList() : Value;
+    public object? EffectiveValue => Kind switch
+    {
+        ParameterKind.LayerStack => Stack.Select(e => e.Name).ToList(),
+        ParameterKind.ModuleReference => SelectedModuleChoice?.Id.ToString(),
+        _ => Value,
+    };
 
     [RelayCommand]
     private void AddLayer()

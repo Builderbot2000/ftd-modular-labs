@@ -15,12 +15,16 @@ namespace FtdModularLabs.App.Presentation;
 public partial class ModuleEditorViewModel : ObservableObject
 {
     private readonly DesignModule _module;
+    private readonly VehicleDesign _design;
+    private readonly ISubsystemTypeRegistry _registry;
     private readonly ICalculationModule? _calculator;
     private readonly ModuleSchema? _schema;
 
-    public ModuleEditorViewModel(DesignModule module, ISubsystemTypeRegistry registry)
+    public ModuleEditorViewModel(DesignModule module, VehicleDesign design, ISubsystemTypeRegistry registry)
     {
         _module = module;
+        _design = design;
+        _registry = registry;
         var type = registry.FindType(module.SubsystemTypeId);
         _calculator = registry.GetCalculator(module.SubsystemTypeId);
         _schema = _calculator?.InputSchema;
@@ -100,9 +104,15 @@ public partial class ModuleEditorViewModel : ObservableObject
         ModuleContribution.SummaryKeys.PowerOutput or
         ModuleContribution.SummaryKeys.PowerDraw;
 
-    private static ParameterField BuildField(ParameterDescriptor descriptor, ParameterValues saved)
+    private ParameterField BuildField(ParameterDescriptor descriptor, ParameterValues saved)
     {
         var field = new ParameterField(descriptor);
+
+        if (descriptor.Kind == ParameterKind.ModuleReference)
+        {
+            PopulateModuleChoices(field, descriptor);
+        }
+
         if (!saved.Contains(descriptor.Key))
             return field;
 
@@ -110,6 +120,14 @@ public partial class ModuleEditorViewModel : ObservableObject
         {
             foreach (var name in saved.GetStringList(descriptor.Key))
                 field.Stack.Add(new LayerStackEntry(name, field));
+        }
+        else if (descriptor.Kind == ParameterKind.ModuleReference)
+        {
+            var savedId = saved.GetString(descriptor.Key);
+            if (Guid.TryParse(savedId, out var moduleId))
+            {
+                field.SelectedModuleChoice = field.ModuleChoices.FirstOrDefault(c => c.Id == moduleId);
+            }
         }
         else
         {
@@ -123,6 +141,20 @@ public partial class ModuleEditorViewModel : ObservableObject
         return field;
     }
 
+    private void PopulateModuleChoices(ParameterField field, ParameterDescriptor descriptor)
+    {
+        field.ModuleChoices.Clear();
+        var candidates = _design.Modules
+            .Where(m => m.Id != _module.Id)
+            .Where(m => string.IsNullOrEmpty(descriptor.ReferenceSubsystemTypeId)
+                     || string.Equals(m.SubsystemTypeId, descriptor.ReferenceSubsystemTypeId, StringComparison.OrdinalIgnoreCase));
+        foreach (var m in candidates)
+        {
+            var typeName = _registry.FindType(m.SubsystemTypeId)?.Name ?? m.SubsystemTypeId;
+            field.ModuleChoices.Add(new ModuleReferenceChoice(m.Id, $"{m.Name} ({typeName})"));
+        }
+    }
+
     private async Task ComputeAsync()
     {
         if (IsBusy || _calculator is null || _schema is null)
@@ -134,7 +166,35 @@ public partial class ModuleEditorViewModel : ObservableObject
         {
             var values = new ParameterValues();
             foreach (var field in Fields)
-                values.Set(field.Key, field.EffectiveValue);
+            {
+                // ModuleReference fields carry a Guid string on-disk, but the calculator wants the
+                // referenced module's values. Resolve the pick here — unresolved required refs
+                // surface as a validation error below.
+                if (field.Kind == ParameterKind.ModuleReference)
+                {
+                    var picked = field.SelectedModuleChoice;
+                    var refModule = picked is null
+                        ? null
+                        : _design.Modules.FirstOrDefault(m => m.Id == picked.Id);
+                    if (refModule is null)
+                    {
+                        values.Set(field.Key, null);
+                        continue;
+                    }
+                    // The referenced module's persisted Values may still be raw JsonElements (loaded
+                    // from disk and never re-edited). Normalize them through the referenced module's
+                    // own schema so the calculator reads typed values (List<string>, double, …) via
+                    // GetReferencedValues, rather than JsonElements the Core getters reject.
+                    var refSchema = _registry.GetSchema(refModule.SubsystemTypeId);
+                    values.Set(field.Key, refSchema is null
+                        ? refModule.Values
+                        : ParameterValueSnapshot.Restore(refModule.Values, refSchema));
+                }
+                else
+                {
+                    values.Set(field.Key, field.EffectiveValue);
+                }
+            }
 
             var errors = values.Validate(_schema);
             if (errors.Count > 0)

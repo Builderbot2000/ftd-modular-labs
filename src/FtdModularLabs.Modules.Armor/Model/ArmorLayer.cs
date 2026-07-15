@@ -1,4 +1,4 @@
-namespace FtdModularLabs.Modules.Aps.Model;
+namespace FtdModularLabs.Modules.Armor.Model;
 
 /// <summary>
 /// A single From The Depths armor layer. Faithful port of ApsCalc's <c>Layer.cs</c>

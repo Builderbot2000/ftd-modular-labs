@@ -1,0 +1,10 @@
+{
+  "templateId": "armor.belt",
+  "name": "Armor Belt (HA + Metal)",
+  "subsystemTypeId": "defence.armor",
+  "values": {
+    "targetArmor": [ "HA 4m Beam", "Metal 4m Beam", "Metal 4m Beam" ],
+    "attackingAps": "",
+    "impactAngle": 45
+  }
+}

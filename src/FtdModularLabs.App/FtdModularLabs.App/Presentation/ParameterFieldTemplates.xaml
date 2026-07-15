@@ -85,12 +85,26 @@
     </StackPanel>
   </DataTemplate>
 
+  <!-- Module reference: pick another module in the same design (filtered by subsystem type). -->
+  <DataTemplate x:Key="ModuleReferenceFieldTemplate">
+    <StackPanel Spacing="2" Margin="0,0,0,12">
+      <TextBlock Text="{Binding DisplayLabel}" Style="{StaticResource CaptionTextBlockStyle}" />
+      <ComboBox ItemsSource="{Binding ModuleChoices}"
+                DisplayMemberPath="Display"
+                SelectedItem="{Binding SelectedModuleChoice, Mode=TwoWay}"
+                HorizontalAlignment="Stretch" />
+      <TextBlock Text="{Binding Help}" Style="{StaticResource CaptionTextBlockStyle}"
+                 Opacity="0.6" TextWrapping="Wrap" />
+    </StackPanel>
+  </DataTemplate>
+
   <local:ParameterTemplateSelector x:Key="ParameterTemplateSelector"
                                    NumberTemplate="{StaticResource NumberFieldTemplate}"
                                    EnumTemplate="{StaticResource EnumFieldTemplate}"
                                    BooleanTemplate="{StaticResource BooleanFieldTemplate}"
                                    TextTemplate="{StaticResource TextFieldTemplate}"
-                                   LayerStackTemplate="{StaticResource LayerStackFieldTemplate}" />
+                                   LayerStackTemplate="{StaticResource LayerStackFieldTemplate}"
+                                   ModuleReferenceTemplate="{StaticResource ModuleReferenceFieldTemplate}" />
 
   <!-- A single result table: title, header row, then data rows. Columns are dynamic. -->
   <DataTemplate x:Key="ResultTableTemplate">

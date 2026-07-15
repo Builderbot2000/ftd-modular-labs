@@ -2,6 +2,7 @@ using FtdModularLabs.App.Models;
 using FtdModularLabs.Domain;
 using FtdModularLabs.Domain.Storage;
 using FtdModularLabs.Modules.Aps;
+using FtdModularLabs.Modules.Armor;
 using FtdModularLabs.Modules.Demo;
 
 namespace FtdModularLabs.App;
@@ -16,6 +17,7 @@ public static class AppServicesExtensions
     public static IServiceCollection AddFtdModules(this IServiceCollection services) =>
         services
             .AddDemoModule()
+            .AddArmorModule()
             .AddApsModule();
 
     /// <summary>Registers persistence + the design-management services.</summary>

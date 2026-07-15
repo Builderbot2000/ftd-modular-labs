@@ -17,6 +17,7 @@ public partial class ParameterTemplateSelector : DataTemplateSelector
     public DataTemplate? BooleanTemplate { get; set; }
     public DataTemplate? TextTemplate { get; set; }
     public DataTemplate? LayerStackTemplate { get; set; }
+    public DataTemplate? ModuleReferenceTemplate { get; set; }
 
     protected override DataTemplate? SelectTemplateCore(object item) => Select(item);
 
@@ -31,6 +32,7 @@ public partial class ParameterTemplateSelector : DataTemplateSelector
             ParameterKind.Boolean => BooleanTemplate,
             ParameterKind.Text => TextTemplate,
             ParameterKind.LayerStack => LayerStackTemplate ?? TextTemplate,
+            ParameterKind.ModuleReference => ModuleReferenceTemplate ?? EnumTemplate ?? TextTemplate,
             _ => TextTemplate,
         }
         : null;

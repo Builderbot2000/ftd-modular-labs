@@ -4,6 +4,7 @@
     <ProjectReference Include="..\..\FtdModularLabs.Domain\FtdModularLabs.Domain.csproj" />
     <ProjectReference Include="..\..\FtdModularLabs.App.Presentation\FtdModularLabs.App.Presentation.csproj" />
     <ProjectReference Include="..\..\FtdModularLabs.Modules.Demo\FtdModularLabs.Modules.Demo.csproj" />
+    <ProjectReference Include="..\..\FtdModularLabs.Modules.Armor\FtdModularLabs.Modules.Armor.csproj" />
     <ProjectReference Include="..\..\FtdModularLabs.Modules.Aps\FtdModularLabs.Modules.Aps.csproj" />
   </ItemGroup>
   <PropertyGroup>
