@@ -149,6 +149,37 @@ public class ApsShellTests
     }
 
     [Fact]
+    public void HeatDamage_matches_game_shaped_charge_frag_equivalent()
+    {
+        // Game ShellModel_ExplosiveCharges.DeriveHighEnergyPotential:
+        //   SCFE = M_v · (0.8 + HE bodies) · explosiveMod · BaseFragDamage(69000) · HeatHeshMult(1.15)
+        //   jet damage = SCFE · HeatFragFraction(0.42) / sqrt(penCoeff, default 0.5)
+        var body = new float[ApsModule.BodyModules.Length];
+        body[ApsModule.HEBodyIndex] = 3;
+        var shell = new Shell(300f, ApsModule.ShapedChargeHead, null, body, gpCasingCount: 4, rgCasingCount: 0, railDraw: 0f);
+        shell.Evaluate(ApsDamageType.HEAT, new Scheme(), new TestConditions());
+
+        float mv = MathF.Pow(300f / 500f, 1.8f);
+        float scfe = mv * (0.8f + 3f) * 1.0f * (3000f * Shell.ApsModifier) * 1.15f;
+        float expected = scfe * 0.42f / MathF.Sqrt(0.5f);
+
+        Assert.Equal(expected, shell.HeatDamage, expected * 0.001f);
+        // Sanity: not the old ApsCalc coefficient (957.6435·23·(bodies+0.8)·M_v).
+        Assert.NotEqual(mv * 3.8f * Shell.ApsModifier * 957.6435f, shell.HeatDamage, 1f);
+    }
+
+    [Fact]
+    public void HeatDamage_is_zero_without_a_shaped_charge_head()
+    {
+        var body = new float[ApsModule.BodyModules.Length];
+        body[ApsModule.HEBodyIndex] = 3;
+        var shell = new Shell(300f, ApsModule.APHead, null, body, gpCasingCount: 4, rgCasingCount: 0, railDraw: 0f);
+        shell.Evaluate(ApsDamageType.HEAT, new Scheme(), new TestConditions());
+
+        Assert.Equal(0f, shell.HeatDamage);
+    }
+
+    [Fact]
     public void SabotBody_chem_penalty_cuts_HE_via_chem_modifier()
     {
         // A sabot body (ChemMod 0.25) present should drag the shell chem modifier down and reduce HE.

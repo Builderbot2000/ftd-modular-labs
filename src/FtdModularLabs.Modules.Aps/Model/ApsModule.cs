@@ -85,7 +85,8 @@ public sealed class ApsModule
     public static ApsModule HollowPoint { get; } = new("Hollow point head", 1.6f, 1.0f, 1.2f, 1.0f, 1.0f, 1000f, Position.Head, false);
     public static ApsModule SkimmerTip { get; } = new("Skimmer tip", 1.6f, 1.0f, 1.4f, 1.0f, 1.0f, 1000f, Position.Head, false);
     public static ApsModule Disruptor { get; } = new("Disruptor conduit", 1.6f, 1.0f, 1.0f, 1.0f, 1.0f, 1000f, Position.Head, false);
-    public static ApsModule IncendiaryHead { get; } = new("Incendiary head", 1.45f, 1.2f, 0.8f, 1.0f, 1.0f, 1000f, Position.Head, false);
+    // Game FireHead uses HeadWeakAPModifier (1.0), not 0.8 (verified against Ftd.dll ShellModuleDictionary).
+    public static ApsModule IncendiaryHead { get; } = new("Incendiary head", 1.45f, 1.2f, 1.0f, 1.0f, 1.0f, 1000f, Position.Head, false);
 
     // ---- Base modules ------------------------------------------------------------------------
     public static ApsModule BaseBleeder { get; } = new("Base bleeder", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 100f, Position.Base, false);

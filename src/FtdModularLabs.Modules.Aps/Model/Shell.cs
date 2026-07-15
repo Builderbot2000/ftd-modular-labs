@@ -13,6 +13,20 @@ public sealed class Shell
     /// <summary>Global damage scale factor applied to every damage number (Shell.cs: ApsModifier = 23).</summary>
     public const float ApsModifier = 23f;
 
+    // ---- Game HEAT (shaped charge) constants, from Ftd.dll --------------------------------------
+    /// <summary>Base frag damage per module (<c>AdvCannonConstants.BaseFragDamage = 3000·23</c>).</summary>
+    private const float BaseFragDamage = 3000f * ApsModifier;
+    /// <summary><c>AdvCannonConstants.HeatHeshMultiplier</c>.</summary>
+    private const float HeatHeshMultiplier = 1.15f;
+    /// <summary><c>SharedWeaponConstants.HeatFragFraction</c>.</summary>
+    private const float HeatFragFraction = 0.42f;
+    /// <summary>
+    /// Shaped-charge penetration coefficient. The game exposes this per shell as a [0.5, 1] slider
+    /// (<c>ShellModuleParams.ShapedChargePenetrationCoefficient</c>) trading penetration depth for jet
+    /// damage; 0.5 is the default and the damage-maximal setting an optimizer would pick.
+    /// </summary>
+    private const float ShapedChargePenetrationCoefficient = 0.5f;
+
     public Shell(float gauge, ApsModule headModule, ApsModule? baseModule, float[] bodyModuleCounts,
         float gpCasingCount, float rgCasingCount, float railDraw)
     {
@@ -287,9 +301,12 @@ public sealed class Shell
 
     private void CalculateMaxDraw()
     {
-        MaxDrawCasing = DrawPerProjectileModule * RGCasingDrawMultiplier * RGCasingCount;
+        // Game (ShellModel_Propellant): MaxRailCasingDraw = RailMaxShellDraw·M_v·casingCapacity — the
+        // felt-recoil boundary — carries NO RailCasingModifier. The 1.25 modifier applies only to the
+        // shell-wide max draw (MaxRailDraw = RailMaxShellDraw·M_v·(lengthInModules + 1.25·casingCapacity)).
+        MaxDrawCasing = DrawPerProjectileModule * RGCasingCount;
         float maxDrawProjectile = DrawPerProjectileModule * EffectiveProjectileModuleCount;
-        MaxDrawShell = MaxDrawCasing + maxDrawProjectile;
+        MaxDrawShell = maxDrawProjectile + DrawPerProjectileModule * RGCasingDrawMultiplier * RGCasingCount;
     }
 
     private void CalculateRecoil()
@@ -530,10 +547,18 @@ public sealed class Shell
             }
             case ApsDamageType.HEAT:
             {
+                // Faithful port of the game's ShellModel_ExplosiveCharges.DeriveHighEnergyPotential:
+                // the shaped head contributes 0.8, each feeding HE body contributes its
+                // HeContributionToSpecialHead (default 1.0). The frag-equivalent is then scaled to jet
+                // damage by HeatFragFraction / sqrt(penetrationCoefficient).
                 if (HeadModule == ApsModule.ShapedChargeHead)
                 {
                     float heBodies = BodyModuleCounts[ApsModule.HEBodyIndex];
-                    HeatDamage = GaugeMultiplier * (heBodies + 0.8f) * OverallChemModifier * ApsModifier * 957.6435f;
+                    float heContribution = 0.8f + heBodies; // HeContributionToSpecialHead default = 1.0
+                    float shapedChargeFragEquivalent =
+                        GaugeMultiplier * heContribution * OverallChemModifier * BaseFragDamage * HeatHeshMultiplier;
+                    HeatDamage = shapedChargeFragEquivalent * HeatFragFraction
+                        / MathF.Sqrt(ShapedChargePenetrationCoefficient);
                 }
                 else
                 {
