@@ -4,53 +4,55 @@ A catalog of all player-designable subsystems in From the Depths, used as a road
 for which Optima optimization modules to build. Sourced from the official wiki
 (fromthedepths.wiki.gg / fandom).
 
-Optima's first module targets **APS**. The systems most amenable to Optima-style
-optimization are those with large discrete design spaces (marked ⭐ below).
+This document mirrors `SubsystemCatalog.All` one-for-one — each bullet is one catalog
+entry with its stable slug. Each entry is one distinct FtD module type; different types
+are never lumped together. ⭐ marks systems with large discrete design spaces (most
+amenable to Optima-style optimization). *(module)* marks types with a calculator wired today.
 
 ## Weapons
-- **APS (Advanced Projectile System)** ⭐ — modular cartridge cannons; most complex system. Includes the **Railgun** electric-boost variant. *(existing module)*
-- **CRAM Cannons** ⭐ — simple arc-firing cannons with pentagonal packing.
-- **Missiles** ⭐ — guided-munition family: standard missiles, **torpedoes**, **rockets** (unguided), **bombs**, **mines**, **depth charges**, interceptors.
-- **Lasers** ⭐ — cavity/pump laser weapons (also drive LAMS defense).
-- **Particle Cannons** ⭐ — beam weapons with tetris-tuned nodes.
-- **Flamethrowers / Plasma cannons** — short-range area weapons.
-- **Melee** — drills, spinning blades, ramming/impact weapons.
-- **Specials** — tactical nukes, mass drivers.
+- **APS Turret** (`weapon.aps`) ⭐ *(module)* — Advanced Projectile System; modular cartridge cannons, the most complex weapon system. Includes the Railgun electric-boost variant and covers CIWS close-in gun roles.
+- **CRAM Cannon** (`weapon.cram`) ⭐ — simple arc-firing cannons with pentagonal packing.
+- **Missile Launcher** (`weapon.missiles`) ⭐ — guided munitions: missiles, torpedoes, rockets, bombs, mines, depth charges, and interceptors.
+- **Laser** (`weapon.lasers`) ⭐ — cavity/pump laser weapons (also drive LAMS defense).
+- **Particle Cannon** (`weapon.particle`) ⭐ — beam weapons with tetris-tuned nodes.
+- **Flamethrower** (`weapon.flamethrower`) — short-range incendiary area weapon.
+- **Plasma Cannon** (`weapon.plasma`) — short-range plasma area weapon.
+- **Drill** (`weapon.melee-drill`) — melee drilling weapon.
+- **Tactical Nuke** (`weapon.nuke`) — tactical nuclear warhead.
+- **Mass Driver** (`weapon.mass-driver`) — high-velocity mass driver.
 
 ## Propulsion
-- **Jet engines / thrusters** (incl. ion thrusters)
-- **Propellers** and **Huge/Large propellers**
-- **Wheels & tracks** (land)
-- **Dediblades / helicopter blades** (rotor lift)
-- **Hydrofoils, sails, paddles, water/air fins**
-- **Spinblocks & pistons** (mechanical actuation)
+- **Custom Jet Engine** (`prop.jet-custom`) — player-built jet engine from intakes, injectors, exhausts, and afterburners.
+- **Thruster** (`prop.thruster`) — prebuilt directional thrusters, including ion thrusters.
+- **Propeller** (`prop.propeller`) — standard propellers.
+- **Huge Propeller** (`prop.propeller-huge`) — huge / large propellers.
+- **Wheels & Tracks** (`prop.wheel`) — land propulsion.
+- **Helicopter Blade** (`prop.helicopter-blade`) — helicopter blades for rotor lift.
+- **Hydrofoil** (`prop.hydrofoil`) — lift-generating hydrofoils.
+- **Sail** (`prop.sail`) — wind-driven sails.
+- **Paddle** (`prop.paddle`) — paddle propulsion.
+- **Fin** (`prop.fin`) — water / air control fins.
 
 ## Power & Energy
-- **Fuel Engines** ⭐ — cheap, high power density; built from cylinders/injectors/etc.
-- **Steam Engines** ⭐ — boilers, turbines, pistons; high efficiency or high output.
-- **Electric Engines + RTGs / Batteries** — energy storage and generation.
-- All feed **Engine Power**, consumed by propulsion, lasers, and decoys.
+All feed **Engine Power**, consumed by propulsion, lasers, and decoys.
+- **Fuel Engine** (`power.fuel-engine`) ⭐ — cheap, high power density; built from cylinders/injectors.
+- **Steam Engine** (`power.steam-engine`) ⭐ — boilers, turbines, pistons; high efficiency or high output.
+- **RTG** (`power.rtg`) — radioisotope generators feeding Engine Power.
+- **Battery** (`power.battery`) — energy storage feeding Engine Power.
 
 ## Defence Systems
-- **Shields** ⭐ — **Ring Shield** (armor-class boost) and **Planar/Projector Shield** (deflection).
-- **LAMS** (Laser Anti-Munition System).
-- **CIWS** (kinetic / flak / CRAM close-in guns).
-- **Interceptors** — missile interceptors and torpedo interceptors.
-- **Softkill/Decoys** — chaff, flares, radar/sonar target simulators, heat decoys.
-- **Signal jammers, smoke dispensers.**
-- **Armor** (also the buoyancy subsystem).
+- **Shield** (`defence.shield`) ⭐ — ring shields (armor-class boost) and planar/projector shields (deflection).
+- **LAMS** (`defence.lams`) — Laser Anti-Munition System.
+- **Jammer / Decoy** (`defence.softkill`) — chaff, flares, heat decoys, radar/sonar simulators, signal jammers, and smoke dispensers.
+- **Armor** (`defence.armor`) *(module)* — armor plating (also the buoyancy subsystem).
 
 ## Detection / Sensors
-- **Radar** (active) + **Passive Radar**
-- **Sonar** (active) + **Passive Sonar**
-- **Visual & IR cameras**, **Retroreflection sensor**
-- **Laser rangefinder**, **wireless snooper**, **munition warners**
-- Split into **Detectors** (wide FOV, autonomous) vs **Trackers** (narrow FOV, precise).
+- **Sensor** (`detect.sensor`) — all detection: radar, sonar, cameras/IR, laser rangefinders, snoopers, and munition warners. Split in-game into **Detectors** (wide FOV, autonomous) and **Trackers** (narrow FOV, precise).
 
 ## AI / Control
-- **AI mainframes** + behavior cards (naval, air, missile-guidance, etc.)
-- **Breadboards / ACBs / PIDs** — logic and control systems.
-- **Storage** — material, fuel, ammo, and energy containers.
+- **AI Mainframe** (`ai.mainframe`) — AI mainframes and behavior cards (naval, air, missile-guidance, etc.).
+- **Breadboard / ACB / PID** (`ai.breadboard`) — logic and control systems.
+- **Storage** (`ai.storage`) — material, fuel, ammo, and energy containers.
 
 ## Sources
 - [Vehicle](https://fromthedepths.wiki.gg/wiki/Vehicle)

@@ -6,7 +6,7 @@
     {
       "templateId": "aircraft.jet",
       "name": "Jet Propulsion",
-      "subsystemTypeId": "prop.jet",
+      "subsystemTypeId": "prop.jet-custom",
       "values": {}
     },
     {
